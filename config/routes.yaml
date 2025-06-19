@@ -1,0 +1,5 @@
+api_v1_controllers:
+    resource: '../src/UI/Http/Controller/Api/V1/'
+    type: attribute
+    name_prefix: api_v1_
+    prefix: /api/v1

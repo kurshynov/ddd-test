@@ -1,0 +1,49 @@
+services:
+    ddd-nginx:
+        container_name: ddd.test.loc
+        image: ddd-nginx
+        restart: always
+        build:
+            context: docker/nginx
+            args:
+                PHP_VERSION: 8.3
+                PROJECT_NAME: ddd.test.loc
+                UID: 1003 # -- id -u $USER -- from docker's HOST machine(your user id)
+                GID: 1003 # -- id -g $USER -- from docker's HOST machine(your group id)
+                CONTAINER_USER_NAME: ddd-nginx
+                WORKDIR: /var/www/sites/ddd/api # -- without trailing slash
+        volumes:
+            - ./:/var/www/sites/ddd/api:delegated
+        ports:
+            - "120:80"
+        links:
+            - ddd-postgres
+        networks:
+            ddd-network:
+                ipv4_address: 1.1.12.10
+
+    ddd-postgres:
+        container_name: ddd-postgres
+        image: postgres
+        platform: linux/amd64
+        restart: always
+        shm_size: 1g
+        environment:
+            POSTGRES_USER: "ddd_user"
+            POSTGRES_PASSWORD: "ddd_passw"
+            POSTGRES_DB: "ddd_db"
+        volumes:
+            - ./docker/postgres/data:/var/lib/postgresql/data
+        ports:
+            - "5433:5432"
+        networks:
+            - ddd-network
+
+networks:
+    ddd-network:
+        name: ddd-network-shared
+        driver: bridge
+        ipam:
+            config:
+                -   subnet: 1.1.12.0/24
+                    gateway: 1.1.12.1
