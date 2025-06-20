@@ -16,6 +16,7 @@ use App\UI\Http\Dto\Request\Api\V1\Loan\LoanEligibilityCheckerRequest;
 use App\UI\Http\Dto\Response\Api\V1\Loan\LoanEligibilityAddResponse;
 use App\UI\Http\Dto\Response\Api\V1\Loan\LoanEligibilityCheckerResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
@@ -25,13 +26,11 @@ class LoanController extends BaseController
 {
     #[Route('/add', name: 'loan_add', methods: ['PUT'])]
     public function add(
-        LoanEligibilityAddRequest $request,
-        LoanEligibilityAddResponse $response,
+        #[MapRequestPayload] LoanEligibilityAddRequest $request,
+        #[MapRequestPayload] LoanEligibilityAddResponse $response,
         LoanEligibilityAddHandler $handler
     ): Response {
         try {
-            $request->validate();
-
             $command = new LoanEligibilityAddCommand(
                 name: $request->getName(),
                 amount: $request->getAmount(),
@@ -52,16 +51,14 @@ class LoanController extends BaseController
 
     #[Route('/check', name: 'loan_check', methods: ['POST'])]
     public function checkEligibility(
-        LoanEligibilityCheckerRequest $request,
-        LoanEligibilityCheckerResponse $response,
+        #[MapRequestPayload] LoanEligibilityCheckerRequest $request,
+        #[MapRequestPayload] LoanEligibilityCheckerResponse $response,
         LoanEligibilityCheckerService $loanEligibilityCheckerService,
         UserRepository $userRepository,
         LoanRepository $loanRepository,
         EventDispatcherInterface $eventDispatcher
     ): Response {
         try {
-            $request->validate();
-
             // В правильном варианте мы должны получить пользователя по сессии или токену,
 //            $user = $this->getUser();
 

@@ -10,22 +10,20 @@ use App\UI\Http\Controller\Api\BaseController;
 use App\UI\Http\Dto\Request\Api\V1\User\RegisterUserRequest;
 use App\UI\Http\Dto\Response\Api\V1\User\RegisterUserResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Throwable;
-
 
 #[Route('/user', name: 'api_')]
 class UserController extends BaseController
 {
     #[Route('/register', name: 'user_register', methods: ['PUT'])]
     public function register(
-        RegisterUserRequest $request,
-        RegisterUserResponse $response,
+        #[MapRequestPayload] RegisterUserRequest $request,
+        #[MapRequestPayload] RegisterUserResponse $response,
         RegisterUserHandler $handler
     ): Response {
         try {
-            $request->validate();
-
             $command = new RegisterUserCommand(
                 name: $request->getName(),
                 age: $request->getAge(),

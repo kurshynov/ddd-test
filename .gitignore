@@ -3,3 +3,4 @@
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
+/docker/postgres/data
