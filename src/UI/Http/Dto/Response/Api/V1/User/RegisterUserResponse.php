@@ -8,5 +8,4 @@ use App\UI\Http\Dto\Response\BaseDtoResponse;
 
 final class RegisterUserResponse extends BaseDtoResponse
 {
-
 }

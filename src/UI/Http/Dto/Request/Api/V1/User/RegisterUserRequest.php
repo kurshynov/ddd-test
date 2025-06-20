@@ -30,8 +30,11 @@ final readonly class RegisterUserRequest
         private int $score, // Кредитный рейтинг клиента
 
         #[Assert\Type('string')]
-        #[Assert\NotBlank]
-        #[Assert\Regex('/^\d{3}-\d{2}-\d{4}$/')]
+        #[Assert\NotBlank(message: 'Please enter pin')]
+        #[Assert\Regex(
+            pattern: '/^\d{3}-\d{2}-\d{4}$/',
+            message: 'The PIN must be in the format XXX-XX-XXXX where X is\' a digit.'
+        )]
         private string $pin, // Персональный идентификационный номер клиента (PIN)
 
         #[Assert\Type('string')]

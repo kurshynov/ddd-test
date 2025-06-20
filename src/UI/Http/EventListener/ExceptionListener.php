@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\UI\Http\EventListener;
 
+use App\Tools\ToolsHelper;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -12,11 +14,18 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 #[AsEventListener]
-class ExceptionListener
+readonly class ExceptionListener
 {
+    public function __construct(
+        private LoggerInterface $logger
+    ) {
+    }
+
     public function __invoke(ExceptionEvent $event): void
     {
         $e = $event->getThrowable();
+
+        $this->logger->error('ExceptionListener::__invoke', [$e]);
 
         // Проверка: это ошибка 422 с вложенной валидацией
         if (
@@ -25,13 +34,13 @@ class ExceptionListener
         ) {
             $violations = [];
             foreach ($previous->getViolations() as $violation) {
-                $violations[$violation->getPropertyPath()] = $violation->getMessage();
+                $violations[ToolsHelper::camelCaseToSnakeCase($violation->getPropertyPath())] = $violation->getMessage();
             }
 
             $event->setResponse(new JsonResponse([
                 'error' => [
                     'code' => 422,
-                    'message' => 'Validation error',
+                    'message' => 'Validation failed',
                     'fields' => $violations,
                 ],
             ], 422));
