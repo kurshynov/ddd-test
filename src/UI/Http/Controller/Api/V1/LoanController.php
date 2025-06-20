@@ -27,7 +27,7 @@ class LoanController extends BaseController
     #[Route('/add', name: 'loan_add', methods: ['PUT'])]
     public function add(
         #[MapRequestPayload] LoanEligibilityAddRequest $request,
-        #[MapRequestPayload] LoanEligibilityAddResponse $response,
+        LoanEligibilityAddResponse $response,
         LoanEligibilityAddHandler $handler
     ): Response {
         try {
@@ -52,7 +52,7 @@ class LoanController extends BaseController
     #[Route('/check', name: 'loan_check', methods: ['POST'])]
     public function checkEligibility(
         #[MapRequestPayload] LoanEligibilityCheckerRequest $request,
-        #[MapRequestPayload] LoanEligibilityCheckerResponse $response,
+        LoanEligibilityCheckerResponse $response,
         LoanEligibilityCheckerService $loanEligibilityCheckerService,
         UserRepository $userRepository,
         LoanRepository $loanRepository,

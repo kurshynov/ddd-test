@@ -20,7 +20,7 @@ class UserController extends BaseController
     #[Route('/register', name: 'user_register', methods: ['PUT'])]
     public function register(
         #[MapRequestPayload] RegisterUserRequest $request,
-        #[MapRequestPayload] RegisterUserResponse $response,
+        RegisterUserResponse $response,
         RegisterUserHandler $handler
     ): Response {
         try {
