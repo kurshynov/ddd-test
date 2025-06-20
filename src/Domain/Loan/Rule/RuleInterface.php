@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Domain\Loan\Rule;
 
 use App\Domain\Loan\Entity\LoanEligibilityResult;
-use App\Domain\User\Entity\User;
+use App\Domain\Loan\Model\LoanApplication;
 
 interface RuleInterface
 {
-    public function apply(User $user, LoanEligibilityResult $result): void;
+    public function supports(LoanApplication $application): bool;
+
+    public function check(LoanApplication $application, LoanEligibilityResult $loanEligibilityResult): void;
 }

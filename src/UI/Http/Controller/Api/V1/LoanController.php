@@ -6,10 +6,9 @@ namespace App\UI\Http\Controller\Api\V1;
 
 use App\Application\Loan\Command\LoanEligibilityAddCommand;
 use App\Application\Loan\Event\LoanEligibilityCheckedEvent;
+use App\Application\Loan\Factory\LoanApplicationFactory;
 use App\Application\Loan\Handler\LoanEligibilityAddHandler;
 use App\Domain\Loan\Service\LoanEligibilityCheckerService;
-use App\Infrastructure\Loan\Doctrine\LoanRepository;
-use App\Infrastructure\User\Doctrine\UserRepository;
 use App\UI\Http\Controller\Api\BaseController;
 use App\UI\Http\Dto\Request\Api\V1\Loan\LoanEligibilityAddRequest;
 use App\UI\Http\Dto\Request\Api\V1\Loan\LoanEligibilityCheckerRequest;
@@ -60,33 +59,24 @@ class LoanController extends BaseController
     public function checkEligibility(
         #[MapRequestPayload] LoanEligibilityCheckerRequest $request,
         LoanEligibilityCheckerResponse $response,
+        LoanApplicationFactory $loanApplicationFactory,
         LoanEligibilityCheckerService $loanEligibilityCheckerService,
-        UserRepository $userRepository,
-        LoanRepository $loanRepository,
         EventDispatcherInterface $eventDispatcher
     ): Response {
-        // В правильном варианте мы должны получить пользователя по сессии или токену,
-//            $user = $this->getUser();
-
-        $user = $userRepository->findById(
-            userId: $request->getUserId()
-        );
-
-        $loan = $loanRepository->findById(
-            loanId: $request->getLoanId()
+        $loanApplication = $loanApplicationFactory->create(
+            $request->getUserId(),
+            $request->getLoanId()
         );
 
         $result = $loanEligibilityCheckerService->check(
-            user: $user
+            application: $loanApplication
         );
-
-        $rate = $loan->getRate() + $result->getAdjustedRate();
 
         $eventDispatcher->dispatch(
             new LoanEligibilityCheckedEvent(
-                userId: $user->getId(),
+                userId: $request->getUserId(),
                 isEligible: $result->isEligible(),
-                rate: $rate
+                rate: $result->getAdjustedRate()
             )
         );
 
@@ -95,7 +85,7 @@ class LoanController extends BaseController
                 ->setSuccess(true)
                 ->setIsEligible($result->isEligible())
                 ->setReasons($result->getReasons())
-                ->setAdjustedRate($rate)
+                ->setAdjustedRate($result->getAdjustedRate())
         );
     }
 }

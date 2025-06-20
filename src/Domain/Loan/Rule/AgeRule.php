@@ -5,15 +5,21 @@ declare(strict_types=1);
 namespace App\Domain\Loan\Rule;
 
 use App\Domain\Loan\Entity\LoanEligibilityResult;
-use App\Domain\User\Entity\User;
+use App\Domain\Loan\Model\LoanApplication;
 
 final class AgeRule implements RuleInterface
 {
-    public function apply(User $user, LoanEligibilityResult $result): void
+    public function supports(LoanApplication $application): bool
     {
-        // Возраст клиента от 18 до 60 лет. todo: до 60 лет включительно?
+        return true;
+    }
+
+    public function check(LoanApplication $application, LoanEligibilityResult $loanEligibilityResult): void
+    {
+        $user = $application->getUser();
+        // Возраст клиента от 18 до 60 лет.
         if ($user->getAge() < 18 || $user->getAge() >= 60) {
-            $result->reject('Возраст клиента должен быть от 18 до 60 лет.');
+            $loanEligibilityResult->reject('Возраст клиента должен быть от 18 до 60 лет.');
         }
     }
 }

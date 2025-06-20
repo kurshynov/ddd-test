@@ -5,33 +5,34 @@ declare(strict_types=1);
 namespace App\Domain\Loan\Service;
 
 use App\Domain\Loan\Entity\LoanEligibilityResult;
-use App\Domain\Loan\Rule\RuleInterface;
-use App\Domain\User\Entity\User;
+use App\Domain\Loan\Model\LoanApplication;
+use App\Domain\Loan\Processor\RuleProcessor;
 
-final class LoanEligibilityCheckerService
+final readonly class LoanEligibilityCheckerService
 {
-    /** @var RuleInterface[] */
-    private iterable $rules;
-
-    public function __construct(iterable $rules)
-    {
-        $this->rules = $rules;
+    public function __construct(
+        private RuleProcessor $ruleProcessor
+    ) {
     }
 
     /**
-     * Handles the loan eligibility check for a user.
+     * Checks the eligibility of a loan application.
      *
-     * @param User $user The user to check for loan eligibility.
-     * @return LoanEligibilityResult The result of the loan eligibility check.
+     * @param LoanApplication $application The loan application to check.
+     * @return LoanEligibilityResult The result of the eligibility check.
      */
-    public function check(User $user): LoanEligibilityResult
+    public function check(LoanApplication $application): LoanEligibilityResult
     {
-        $result = new LoanEligibilityResult();
+        $loanEligibilityResult = $this->ruleProcessor->evaluate($application);
 
-        foreach ($this->rules as $rule) {
-            $rule->apply($user, $result);
+        if ($loanEligibilityResult->isEligible()) {
+            $baseRate = $application->getLoan()->getRate();
+            $adjustedRate = $loanEligibilityResult->getAdjustedRate();
+            $finalRate = $baseRate + $adjustedRate;
+
+            $loanEligibilityResult->increaseRate($finalRate);
         }
 
-        return $result;
+        return $loanEligibilityResult;
     }
 }
