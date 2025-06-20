@@ -32,8 +32,6 @@ trait ValidatorTrait
                     }
 
                     $fields[$field] = $message;
-
-                    $this->logger->warning('ValidatorTrait::validate', [$message, $error->getParameters()]);
                 }
             }
 
