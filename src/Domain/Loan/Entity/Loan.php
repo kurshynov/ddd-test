@@ -31,7 +31,7 @@ class Loan implements EntityInterface, CreatedAtTimestampableInterface, UpdatedA
     private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING, length: 100)]
-    public string $name;
+    private string $name;
 
     #[ORM\Column(type: Types::INTEGER)]
     private int $amount;
